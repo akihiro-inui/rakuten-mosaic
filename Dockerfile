@@ -17,5 +17,4 @@ RUN pip install cmake==3.21.2
 RUN pip install -r requirements.txt
 
 # Run API application
-# CMD ["gunicorn", "-w", "3", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:5000", "src.main:app"]
-CMD ["python", "src/main.py"]
+CMD ["gunicorn", "-w", "3", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:5000", "src.main:app"]
