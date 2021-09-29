@@ -33,6 +33,7 @@ docker build -t lightning_fast_api_image . && docker run -p 80:80 -d --name ligh
 If you managed to run the application, you should be able to access to `localhost:80` and see the Swagger documentation like this.
 ![alt text](docs/swagger.png "Swagger")
 
-## Fork and star this repo! Thanks!
-
-
+## Deploy to heroku
+heroku container:push hide_face -a rakuten-hide-my-face
+heroku container:release hide_face -a rakuten-hide-my-face
+heroku logs -a rakuten-hide-my-face --tail 
