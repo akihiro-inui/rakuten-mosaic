@@ -19,18 +19,17 @@ def read_image(image_file):
         logger.error(f"Failed to read the uploaded image file: {err}")
 
 
-def resize_image(image_array: np.ndarray) -> np.ndarray:
+def resize_image(image_array: np.ndarray, width: int, height: int) -> np.ndarray:
     """
     Resize given binary image data
     :param image_array: Image data as numpy array
+    :param width: Image width to resize
+    :param height: Image height to resize
     :return: Resized image data array
     """
     try:
-        # Define image after resize (width x height)
-        image_size = int(os.environ.get("IMAGE_SIZE"))
-        resized_image_size = (image_size, image_size)
         return cv2.resize(image_array,
-                          resized_image_size)
+                          (width, height))
     except Exception as err:
         logger.error(f"Failed to read the uploaded image file: {err}")
 
@@ -45,3 +44,17 @@ def save_image(file_path: str, image_array: np.ndarray):
         cv2.imwrite(file_path, image_array)
     except Exception as err:
         logger.error(f"Failed to save the image file: {err}")
+
+
+def remove_image(file_path: str):
+    """
+    Delete image file
+    :param file_path: File path to delete
+    """
+    try:
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
+        else:
+            logger.error(f"Could not delete the file as it does not exist: {file_path}")
+    except Exception as err:
+        logger.error(f"Failed to delete the image file: {err}")

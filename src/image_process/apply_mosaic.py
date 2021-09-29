@@ -1,37 +1,37 @@
 import os
 import cv2
+import hashlib
 import numpy as np
 import face_recognition
 from src.utils import logger
 from src.utils.custom_error_handlers import NoFaceDetectedError
-from src.image_process.utils import read_image, resize_image, save_image
+from src.image_process.utils import read_image, resize_image, save_image, remove_image
 
 
-def process(original_image_file: str, save_file=False) -> np.ndarray:
+def process(original_image_file: str) -> str:
     """
     Read image file, resize and apply mosaic effect
     :param original_image_file: Original image file name
-    :param save_file: Set True to save images as files
     """
     # Read image file
     image_binary = read_image(original_image_file)
 
     # Resize image
-    resized_image = resize_image(image_binary)
+    image_size = int(os.environ.get("IMAGE_SIZE"))
+    resized_image = resize_image(image_binary, width=image_size, height=image_size)
 
-    # Save resized image
-    if save_file:
-        save_image(os.path.join(os.environ.get("UPLOAD_FOLDER"), original_image_file), resized_image)
+    # Hash original image
+    sha256 = hashlib.sha256(image_binary).hexdigest()
 
     # Apply mosaic effect
     mosaic_image = apply_mosaic(resized_image)
+    mosaic_image = resize_image(mosaic_image, width=image_binary.shape[1], height=image_binary.shape[0])
 
     # Save mosaic image
-    if save_file:
-        save_image(os.path.join(os.environ.get("UPLOAD_FOLDER"), f"mosaic_{original_image_file}"),
-                   mosaic_image)
+    processed_image_file_path = os.path.join(os.environ.get("UPLOAD_FOLDER"), f"{sha256}.png")
+    save_image(processed_image_file_path, mosaic_image)
 
-    return mosaic_image
+    return processed_image_file_path
 
 
 def apply_mosaic(image_array: np.ndarray) -> np.ndarray:

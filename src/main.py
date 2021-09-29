@@ -14,6 +14,11 @@ from src.utils.config_loader import load_config
 # Try to load environment variables from file
 load_config(".env")
 
+# Create image folder
+if not os.path.exists(os.environ.get("UPLOAD_FOLDER")):
+    os.makedirs(os.environ.get("UPLOAD_FOLDER"))
+    logger.info("Successfully created image upload folder")
+
 # Create API Application
 app = FastAPI()
 
@@ -90,6 +95,6 @@ app.add_middleware(
 if __name__ == "__main__":
     uvicorn.run("main:app",
                 host="0.0.0.0",
-                port=int(os.environ.get("ENDPOINT_PORT")),
+                port=int(os.environ.get("PORT")),
                 log_level=os.environ.get("LOG_LEVEL"),
                 reload=True)
