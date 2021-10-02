@@ -2,7 +2,7 @@
 FROM python:3.8
 
 # API port to expose
-EXPOSE $PORT
+EXPOSE 5000
 
 # Copy contents
 COPY . .
@@ -17,4 +17,4 @@ RUN pip install cmake==3.21.2
 RUN pip install -r requirements.txt
 
 # Run API application
-CMD ["gunicorn", "-w", "3", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:$PORT", "src.main:app"]
+CMD gunicorn -w 1 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:5000 src.main:app
