@@ -20,3 +20,4 @@ python-multipart
 
 # ML
 scikit-learn == 1.0
+deepface == 0.0.68

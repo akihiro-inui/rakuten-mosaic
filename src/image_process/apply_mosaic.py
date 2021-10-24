@@ -2,7 +2,7 @@ import os
 import hashlib
 import numpy as np
 from src.utils import logger
-from src.image_process.utils import read_image, resize_image, save_image, detect_face_location
+from src.image_process.utils import read_image, resize_image, save_image, detect_multiple_face_location
 from src.image_process.blur import blur_image_locally
 
 
@@ -43,7 +43,7 @@ def apply_mosaic(image_array: np.ndarray) -> np.ndarray:
         height = image_array.shape[0]
 
         # # Find all the faces from the given image file
-        face_locations = detect_face_location(image_array)
+        face_locations = detect_multiple_face_location(image_array)
 
         # Create mask where 0 is blur 1 is non-blur part
         sharp_mask = np.full((width, height, 3), fill_value=1)
@@ -64,4 +64,3 @@ def apply_mosaic(image_array: np.ndarray) -> np.ndarray:
         return image_array
     except Exception as err:
         logger.error(f"Something unexpected happened: {err}")
-

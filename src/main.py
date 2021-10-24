@@ -6,7 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from src.endpoints import docs, status, mosaic
+from src.endpoints import docs, status, mosaic, metadata
 from src.utils import logger
 from src.utils.custom_error_handlers import BaseSystemError, PydanticError, RequestError, NoFaceDetectedError
 from src.utils.config_loader import load_config
@@ -83,6 +83,7 @@ async def no_face_exception_handler(request, err):
 app.include_router(docs.router)
 app.include_router(status.router)
 app.include_router(mosaic.router)
+app.include_router(metadata.router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

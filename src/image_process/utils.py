@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import face_recognition
+from deepface import DeepFace
 from typing import List, Tuple
 from src.utils import logger
 from src.utils.custom_error_handlers import NoFaceDetectedError
@@ -64,7 +65,21 @@ def remove_image(file_path: str):
         logger.error(f"Failed to delete the image file: {err}")
 
 
-def detect_face_location(image_array: np.ndarray) -> List[Tuple]:
+def detect_face_location(image_file_path: str) -> dict:
+    """
+    Extract face location as list of dictionaries
+    :param image_file_path: Image file path
+    :return: List of face locations [{x: int, y: int, w: int, h: int}, ...]
+    """
+    # Use Deep face analyzer to extract age, gender, race and emotion
+    extracted_metadata = DeepFace.analyze(img_path=image_file_path, actions=["age"])
+    if not extracted_metadata:
+        logger.error("No face was detected")
+        raise NoFaceDetectedError("No face was detected")
+    return extracted_metadata["region"]
+
+
+def detect_multiple_face_location(image_array: np.ndarray) -> List[Tuple]:
     """
     Apply face detection, return detected face location
     :param image_array: Image data as numpy ndarray
