@@ -1,11 +1,9 @@
 import os
-import cv2
 import hashlib
 import numpy as np
-import face_recognition
 from src.utils import logger
-from src.utils.custom_error_handlers import NoFaceDetectedError
-from src.image_process.utils import read_image, resize_image, save_image, remove_image
+from src.image_process.utils import read_image, resize_image, save_image, detect_face_location
+from src.image_process.blur import blur_image_locally
 
 
 def process(original_image_file: str) -> str:
@@ -41,32 +39,29 @@ def apply_mosaic(image_array: np.ndarray) -> np.ndarray:
     :return: Image data with mosaic effect applied to all faces
     """
     try:
-        # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
-        rgb_image = image_array[:, :, ::-1]
+        width = image_array.shape[1]
+        height = image_array.shape[0]
 
-        # Find all the faces from the given image file
-        face_locations = face_recognition.face_locations(rgb_image)
+        # # Find all the faces from the given image file
+        face_locations = detect_face_location(image_array)
 
-        # If no face is detected, raise error
-        if len(face_locations) == 0:
-            raise NoFaceDetectedError("No face was detected")
+        # Create mask where 0 is blur 1 is non-blur part
+        sharp_mask = np.full((width, height, 3), fill_value=1)
 
         # Apply mosaic effect to all detected faces
         for top, right, bottom, left in face_locations:
-            # Resize to small size (mosaic)
-            small = cv2.resize(image_array[top:bottom, left:right],
-                               None,
-                               fx=0.05,
-                               fy=0.05,
-                               interpolation=cv2.INTER_NEAREST)
+            # Set blur part to 0
+            sharp_mask[top:bottom, left:right, :] = 0
 
-            # Resize back to original size (face area)
-            image_array[top:bottom, left:right] = cv2.resize(small,
-                                                             image_array[top:bottom, left:right].shape[:2][::-1],
-                                                             interpolation=cv2.INTER_NEAREST)
+            # Apply blur effect to detected face location
+            image_array = blur_image_locally(
+                image_array,
+                sharp_mask,
+                use_gaussian_blur=True,
+                gaussian_sigma=13,
+                uniform_filter_size=150)
+
         return image_array
-
-    except NoFaceDetectedError:
-        logger.info("No face was detected")
-        raise NoFaceDetectedError("No face was detected")
+    except Exception as err:
+        logger.error(f"Something unexpected happened: {err}")
 

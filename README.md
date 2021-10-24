@@ -34,6 +34,7 @@ If you managed to run the application, you should be able to access to `localhos
 ![alt text](docs/swagger.png "Swagger")
 
 ## Deploy to heroku
-heroku container:push hide_face -a rakuten-hide-my-face
-heroku container:release hide_face -a rakuten-hide-my-face
-heroku logs -a rakuten-hide-my-face --tail 
+heroku login
+heroku container:login
+heroku container:push web
+heroku container:release web

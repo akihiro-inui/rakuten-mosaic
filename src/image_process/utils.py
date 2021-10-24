@@ -1,7 +1,10 @@
 import os
 import cv2
 import numpy as np
+import face_recognition
+from typing import List, Tuple
 from src.utils import logger
+from src.utils.custom_error_handlers import NoFaceDetectedError
 
 
 def read_image(image_file):
@@ -44,6 +47,7 @@ def save_image(file_path: str, image_array: np.ndarray):
         cv2.imwrite(file_path, image_array)
     except Exception as err:
         logger.error(f"Failed to save the image file: {err}")
+        raise NoFaceDetectedError("No face was detected")
 
 
 def remove_image(file_path: str):
@@ -58,3 +62,19 @@ def remove_image(file_path: str):
             logger.error(f"Could not delete the file as it does not exist: {file_path}")
     except Exception as err:
         logger.error(f"Failed to delete the image file: {err}")
+
+
+def detect_face_location(image_array: np.ndarray) -> List[Tuple]:
+    """
+    Apply face detection, return detected face location
+    :param image_array: Image data as numpy ndarray
+    :return: Face location ([top, right. bottom, left], ...)
+    """
+    # Find all the faces from the given image file
+    face_locations = face_recognition.face_locations(image_array)
+
+    # If no face is detected, raise error
+    if len(face_locations) == 0:
+        logger.error("No face was detected")
+        raise NoFaceDetectedError("No face was detected")
+    return face_locations
